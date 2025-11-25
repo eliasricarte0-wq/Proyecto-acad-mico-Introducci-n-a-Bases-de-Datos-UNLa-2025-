@@ -1,0 +1,1513 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema TP_46894109_Ricarte
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema TP_46894109_Ricarte
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `TP_46894109_Ricarte` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;
+USE `TP_46894109_Ricarte` ;
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`Personas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`Personas` (
+  `Nombre` VARCHAR(45) NOT NULL,
+  `Apellido` VARCHAR(45) NOT NULL,
+  `dni` INT NOT NULL,
+  `edad` INT NOT NULL,
+  PRIMARY KEY (`dni`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`materias`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`materias` (
+  `idmaterias` INT NOT NULL,
+  `materia` VARCHAR(45) NOT NULL,
+  `promocionable` TINYINT NOT NULL,
+  PRIMARY KEY (`idmaterias`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`departamentos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`departamentos` (
+  `id_departamentos` INT NOT NULL,
+  `departamento` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_departamentos`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`carreras`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`carreras` (
+  `id_carrera` INT NOT NULL,
+  `carrera` VARCHAR(100) NOT NULL,
+  `departamentos_id_departamentos` INT NOT NULL,
+  PRIMARY KEY (`id_carrera`),
+  INDEX `fk_carreras_departamentos1_idx` (`departamentos_id_departamentos` ASC) VISIBLE,
+  CONSTRAINT `fk_carreras_departamentos1`
+    FOREIGN KEY (`departamentos_id_departamentos`)
+    REFERENCES `TP_46894109_Ricarte`.`departamentos` (`id_departamentos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`Estudiantes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`Estudiantes` (
+  `matricula` INT NOT NULL,
+  `Estudiante_dni` INT NOT NULL,
+  PRIMARY KEY (`matricula`),
+  INDEX `fk_legajo_Estudiante_idx` (`Estudiante_dni` ASC) VISIBLE,
+  CONSTRAINT `fk_legajo_Estudiante`
+    FOREIGN KEY (`Estudiante_dni`)
+    REFERENCES `TP_46894109_Ricarte`.`Personas` (`dni`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`profesores`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`profesores` (
+  `id_profesor` INT NOT NULL,
+  `Persona_dni` INT NOT NULL,
+  PRIMARY KEY (`id_profesor`),
+  INDEX `fk_profesor_Persona1_idx` (`Persona_dni` ASC) VISIBLE,
+  CONSTRAINT `fk_profesor_Persona1`
+    FOREIGN KEY (`Persona_dni`)
+    REFERENCES `TP_46894109_Ricarte`.`Personas` (`dni`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`examenes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`examenes` (
+  `id_examen` INT NOT NULL,
+  `descripcion_temas` VARCHAR(100) NULL,
+  PRIMARY KEY (`id_examen`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`legajos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`legajos` (
+  `legajo` VARCHAR(45) NOT NULL,
+  `carreras_id_carrera` INT NOT NULL,
+  `regularidad` VARCHAR(45) NOT NULL,
+  `Estudiante_matricula` INT NOT NULL,
+  `plan_academico` INT NOT NULL,
+  PRIMARY KEY (`legajo`),
+  INDEX `fk_legajos_carreras1_idx` (`carreras_id_carrera` ASC) VISIBLE,
+  INDEX `fk_legajos_Estudiante1_idx` (`Estudiante_matricula` ASC) VISIBLE,
+  CONSTRAINT `fk_legajos_carreras1`
+    FOREIGN KEY (`carreras_id_carrera`)
+    REFERENCES `TP_46894109_Ricarte`.`carreras` (`id_carrera`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_legajos_Estudiante1`
+    FOREIGN KEY (`Estudiante_matricula`)
+    REFERENCES `TP_46894109_Ricarte`.`Estudiantes` (`matricula`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`cursada_materias`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`cursada_materias` (
+  `id_cursada` INT NOT NULL,
+  `fecha_inicio` DATE NOT NULL,
+  `fecha_fin_cursada` DATE NULL,
+  `nota` INT NOT NULL,
+  `aprobado` TINYINT NOT NULL,
+  `legajo_estudiante` VARCHAR(45) NOT NULL,
+  `materias_idmaterias` INT NOT NULL,
+  PRIMARY KEY (`id_cursada`, `legajo_estudiante`, `materias_idmaterias`),
+  INDEX `fk_cursada_materias_legajos1_idx` (`legajo_estudiante` ASC) VISIBLE,
+  INDEX `fk_cursada_materias_materias1_idx` (`materias_idmaterias` ASC) VISIBLE,
+  CONSTRAINT `fk_cursada_materias_legajos1`
+    FOREIGN KEY (`legajo_estudiante`)
+    REFERENCES `TP_46894109_Ricarte`.`legajos` (`legajo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_cursada_materias_materias1`
+    FOREIGN KEY (`materias_idmaterias`)
+    REFERENCES `TP_46894109_Ricarte`.`materias` (`idmaterias`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`profesor_encargado`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`profesor_encargado` (
+  `materias_idmaterias` INT NOT NULL,
+  `profesor_id_profesor` INT NOT NULL,
+  `id_prof_materia` INT NOT NULL,
+  PRIMARY KEY (`materias_idmaterias`, `profesor_id_profesor`, `id_prof_materia`),
+  INDEX `fk_materias_has_profesor_profesor1_idx` (`profesor_id_profesor` ASC) VISIBLE,
+  INDEX `fk_materias_has_profesor_materias1_idx` (`materias_idmaterias` ASC) VISIBLE,
+  CONSTRAINT `fk_materias_has_profesor_materias1`
+    FOREIGN KEY (`materias_idmaterias`)
+    REFERENCES `TP_46894109_Ricarte`.`materias` (`idmaterias`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_materias_has_profesor_profesor1`
+    FOREIGN KEY (`profesor_id_profesor`)
+    REFERENCES `TP_46894109_Ricarte`.`profesores` (`id_profesor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`examenes_materias`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`examenes_materias` (
+  `examenes_id_examen` INT NOT NULL,
+  `materias_idmaterias` INT NOT NULL,
+  `id_examen_materia` INT NOT NULL,
+  PRIMARY KEY (`examenes_id_examen`, `materias_idmaterias`, `id_examen_materia`),
+  INDEX `fk_examenes_has_materias_materias1_idx` (`materias_idmaterias` ASC) VISIBLE,
+  INDEX `fk_examenes_has_materias_examenes1_idx` (`examenes_id_examen` ASC) VISIBLE,
+  CONSTRAINT `fk_examenes_has_materias_examenes1`
+    FOREIGN KEY (`examenes_id_examen`)
+    REFERENCES `TP_46894109_Ricarte`.`examenes` (`id_examen`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_examenes_has_materias_materias1`
+    FOREIGN KEY (`materias_idmaterias`)
+    REFERENCES `TP_46894109_Ricarte`.`materias` (`idmaterias`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `TP_46894109_Ricarte`.`materias_has_carreras`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `TP_46894109_Ricarte`.`materias_has_carreras` (
+  `materias_idmaterias` INT NOT NULL,
+  `carreras_id_carrera` INT NOT NULL,
+  PRIMARY KEY (`materias_idmaterias`, `carreras_id_carrera`),
+  INDEX `fk_materias_has_carreras_carreras1_idx` (`carreras_id_carrera` ASC) VISIBLE,
+  INDEX `fk_materias_has_carreras_materias1_idx` (`materias_idmaterias` ASC) VISIBLE,
+  CONSTRAINT `fk_materias_has_carreras_materias1`
+    FOREIGN KEY (`materias_idmaterias`)
+    REFERENCES `TP_46894109_Ricarte`.`materias` (`idmaterias`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_materias_has_carreras_carreras1`
+    FOREIGN KEY (`carreras_id_carrera`)
+    REFERENCES `TP_46894109_Ricarte`.`carreras` (`id_carrera`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+
+USE `TP_46894109_Ricarte` ;
+
+INSERT INTO `TP_46894109_Ricarte`.`Personas` (`Nombre`, `Apellido`, `dni`, `edad`) VALUES
+('Lucas', 'Martinez', 23015432, 24),
+('Sofia', 'Gonzalez', 38124567, 33),
+('Mateo', 'Lopez', 25003698, 29),
+('Valentina', 'Perez', 40125678, 22),
+('Joaquin', 'Diaz', 29004567, 45),
+('Camila', 'Fernandez', 35012789, 19),
+('Agustin', 'Garcia', 47025689, 38),
+('Isabella', 'Rodriguez', 32014578, 26),
+('Benjamin', 'Alvarez', 27004512, 31),
+('Maria', 'Sanchez', 36002547, 40),
+('Thiago', 'Ruiz', 21004568, 23),
+('Emilia', 'Torres', 49005678, 20),
+('Juan', 'Flores', 31005689, 28),
+('Mia', 'Rivera', 22003456, 21),
+('Diego', 'Vargas', 44002568, 44),
+('Agustina', 'Castro', 26003457, 35),
+('Lucas', 'Ortiz', 20012345, 27),
+('Sofia', 'Mendoza', 50000500, 30),
+('Matias', 'Mora', 39004560, 37),
+('Valentina', 'Gil', 42006789, 34),
+('Nicolas', 'Herrera', 28004567, 36),
+('Camila', 'Diaz', 43006780, 41),
+('Emiliano', 'Medina', 37003456, 39),
+('Florencia', 'Paredes', 45002345, 25),
+('Martin', 'Cruz', 24005678, 32),
+('Lucia', 'Lopez', 46001234, 43),
+('Ignacio', 'Ramos', 33006789, 18),
+('Paula', 'Reyes', 38006789, 20),
+('Javier', 'Silva', 34004567, 22),
+('Mariana', 'Castillo', 20056789, 26),
+('Maximiliano', 'Morales', 41002345, 29),
+('Victoria', 'Acosta', 29003456, 33),
+('Franco', 'Navarro', 37005678, 45),
+('Antonella', 'Herrera', 39006789, 23),
+('Federico', 'Gomez', 21005678, 34),
+('Santiago', 'Romero', 31006789, 31),
+('Andrea', 'Molina', 28006780, 27),
+('Juan', 'Vega', 44005678, 38),
+('Catalina', 'Silva', 35003456, 42),
+('Gabriel', 'Ortiz', 45006789, 21),
+('Luciana', 'Perez', 47003456, 30),
+('Ezequiel', 'Mendez', 50003456, 24),
+('Paula', 'Torres', 32006789, 35),
+('Lucas', 'Rojas', 38003456, 28),
+('Carolina', 'Castro', 30004567, 40),
+('Agustin', 'Ruiz', 27005678, 22),
+('Sofia', 'Herrera', 31003456, 29),
+('Matias', 'Mendoza', 25006789, 33),
+('Isabella', 'Gonzalez', 34006780, 36);
+-- aca para arriba profesores
+-- aca para abajo estudiantes
+INSERT INTO `TP_46894109_Ricarte`.`Personas` (`Nombre`, `Apellido`, `dni`, `edad`) VALUES
+('Emilia', 'Morales', 42345678, 20),
+('Joaquin', 'Gomez', 36123456, 28),
+('Lucia', 'Vargas', 27987654, 32),
+('Diego', 'Perez', 45001234, 24),
+('Valentina', 'Ramirez', 30876543, 38),
+('Agustin', 'Fernandez', 24123456, 27),
+('Camila', 'Santos', 38901234, 26),
+('Matias', 'Alvarez', 46543210, 33),
+('Sofia', 'Molina', 21234567, 31),
+('Lucas', 'Gutierrez', 43876543, 29),
+('Mariana', 'Diaz', 29876543, 22),
+('Benjamin', 'Castillo', 32765432, 45),
+('Victoria', 'Ortiz', 44210987, 35),
+('Maximiliano', 'Rojas', 25432109, 23),
+('Andrea', 'Flores', 48876543, 20),
+('Franco', 'Sanchez', 30876512, 37),
+('Antonella', 'Perez', 34567890, 21),
+('Ignacio', 'Garcia', 45321098, 24),
+('Paula', 'Lopez', 38904567, 40),
+('Gabriel', 'Mendoza', 23210987, 34),
+('Luciana', 'Torres', 46789012, 25),
+('Ezequiel', 'Navarro', 32543210, 27),
+('Carolina', 'Ruiz', 42109876, 22),
+('Santiago', 'Diaz', 28765432, 31),
+('Florencia', 'Alvarez', 39876543, 36),
+('Martin', 'Vargas', 34876543, 38),
+('Isabella', 'Castro', 27123456, 29),
+('Javier', 'Gomez', 46098765, 20),
+('Mia', 'Fernandez', 27436587, 22),
+('Emiliano', 'Santos', 32098765, 24),
+('Paula', 'Perez', 25897654, 27),
+('Lucas', 'Garcia', 40123456, 33),
+('Sofia', 'Lopez', 31456789, 39),
+('Mateo', 'Mendoza', 37543210, 45),
+('Valentina', 'Torres', 46123456, 26),
+('Joaquin', 'Navarro', 32654321, 23),
+('Camila', 'Ruiz', 38012345, 30),
+('Agustin', 'Diaz', 42987654, 28),
+('Matias', 'Alvarez', 22098765, 34),
+('Victoria', 'Vargas', 46765432, 31),
+('Franco', 'Castro', 34567891, 20),
+('Antonella', 'Gomez', 30543210, 22),
+('Federico', 'Fernandez', 43210987, 25),
+('Santiago', 'Santos', 25439876, 27),
+('Andrea', 'Perez', 29876521, 36),
+('Juan', 'Garcia', 42123456, 38),
+('Catalina', 'Lopez', 37890123, 29),
+('Gabriel', 'Mendoza', 26098765, 24),
+('Luciana', 'Torres', 39871234, 21),
+('Ezequiel', 'Navarro', 43210965, 26);
+
+INSERT INTO `TP_46894109_Ricarte`.`Personas` (`Nombre`, `Apellido`, `dni`, `edad`) VALUES
+('Esteban', 'Morales', 29123456, 28),
+('Micaela', 'Gomez', 33123457, 24),
+('Ramiro', 'Vargas', 41567891, 35),
+('Nadia', 'Perez', 37234568, 27),
+('Facundo', 'Ramirez', 34567893, 30),
+('Lorena', 'Fernandez', 26543220, 23),
+('Diego', 'Santos', 42123460, 40),
+('Camila', 'Alvarez', 39876550, 22),
+('Bruno', 'Molina', 28876544, 37),
+('Bianca', 'Gutierrez', 45321100, 29),
+('Pablo', 'Diaz', 39987633, 33),
+('Gisela', 'Castillo', 36789013, 26),
+('Emilio', 'Ortiz', 27987644, 38),
+('Catalina', 'Rojas', 43098762, 21),
+('Fernando', 'Flores', 41234569, 34),
+('Julieta', 'Sanchez', 36098765, 25),
+('Tomas', 'Perez', 34543218, 31),
+('Micaela', 'Garcia', 40123470, 28),
+('Ramiro', 'Lopez', 47896544, 26),
+('Sol', 'Mendoza', 42345673, 30),
+('Nadia', 'Torres', 27098762, 22),
+('Gonzalo', 'Navarro', 35987655, 35),
+('Leticia', 'Ruiz', 48901235, 29),
+('Emiliano', 'Diaz', 34678902, 24),
+('Marisol', 'Alvarez', 46234568, 33),
+('Agustin', 'Vargas', 27890124, 27),
+('Vanesa', 'Castro', 31456790, 21),
+('Jorge', 'Gomez', 40567891, 37),
+('Florencia', 'Fernandez', 32456790, 26),
+('Esteban', 'Santos', 37458902, 32),
+('Gabriela', 'Perez', 43678913, 28),
+('Diego', 'Garcia', 39874568, 34),
+('Lorena', 'Lopez', 26547891, 30),
+('Ramona', 'Mendoza', 47987652, 25),
+('Andres', 'Torres', 34098766, 29),
+('Monica', 'Navarro', 42109877, 33),
+('Ignacio', 'Ruiz', 31567891, 22),
+('Sandra', 'Diaz', 39871235, 31),
+('Julian', 'Alvarez', 43765499, 28),
+('Veronica', 'Vargas', 29017655, 35),
+('Leonardo', 'Castro', 46098713, 24),
+('Silvia', 'Gomez', 32098766, 30),
+('Matias', 'Fernandez', 27896544, 27),
+('Carla', 'Santos', 38543211, 29),
+('Nicolas', 'Perez', 43210988, 31),
+('Adriana', 'Garcia', 47568902, 26),
+('Javier', 'Lopez', 32458977, 28),
+('Lorena', 'Mendoza', 39875613, 23),
+('Mariano', 'Torres', 27765433, 34);
+
+
+
+INSERT INTO `TP_46894109_Ricarte`.`materias` (`idmaterias`, `materia`, `promocionable`) VALUES
+(1, 'Organización de Computadoras', 1),
+(2, 'Programación', 1),
+(3, 'Elementos de Matemática', 1),
+(4, 'Algoritmos', 1),
+(5, 'Inglés 1', 1),
+(6, 'Bases de Datos', 1),
+(7, 'Redes de Computadoras', 1),
+(8, 'Sistemas Operativos', 1),
+(9, 'Ingeniería de Software', 1),
+(10, 'Seguridad Informática', 1),
+(11, 'Diseño Gráfico', 0), -- No promocionable
+(12, 'Historia del Arte', 0), -- No promocionable
+(13, 'Teoría del Diseño', 0), -- No promocionable
+(14, 'Economía Política', 1),
+(15, 'Macroeconomía', 1),
+(16, 'Microeconomía', 1),
+(17, 'Contabilidad General', 1),
+(18, 'Derecho Empresarial', 1),
+(19, 'Psicología Cognitiva', 1),
+(20, 'Neurociencia', 1),
+(21, 'Física 1', 1),
+(22, 'Química General', 1),
+(23, 'Biología Molecular', 1),
+(24, 'Historia Contemporánea', 1),
+(25, 'Geografía Humana', 1),
+(26, 'Filosofía Moderna', 1),
+(27, 'Educación y Sociedad', 1),
+(28, 'Comunicación Digital', 1),
+(29, 'Marketing Estratégico', 1),
+(30, 'Administración Financiera', 1),
+(31, 'Derecho Constitucional', 1),
+(32, 'Psicología del Desarrollo', 1),
+(33, 'Análisis Matemático', 1),
+(34, 'Álgebra Lineal', 1),
+(35, 'Cálculo Diferencial', 1),
+(36, 'Estadística Aplicada', 1),
+(37, 'Inteligencia Artificial', 0), -- No promocionable
+(38, 'Big Data', 0), -- No promocionable
+(39, 'Machine Learning', 0), -- No promocionable
+(40, 'Robótica', 1),
+(41, 'Automatización Industrial', 1),
+(42, 'Electrónica Digital', 1),
+(43, 'Arquitectura de Computadoras', 1),
+(44, 'Bases de Datos Avanzadas', 1),
+(45, 'Redes Avanzadas', 1),
+(46, 'Seguridad en Redes', 1),
+(47, 'Criptografía', 1),
+(48, 'Desarrollo Web', 1),
+(49, 'Desarrollo Móvil', 1),
+(50, 'Cloud Computing', 1),
+(51, 'Blockchain', 1),
+(52, 'Gestión de Proyectos', 1),
+(53, 'Metodologías Ágiles', 1),
+(54, 'Ingeniería del Software', 1),
+(55, 'Sistemas Distribuidos', 1),
+(56, 'Computación Cuántica', 1),
+(57, 'Bioinformática', 1),
+(58, 'Nanotecnología', 1),
+(59, 'Energías Renovables', 1),
+(60, 'Cambio Climático', 1),
+(61, 'Desarrollo Sustentable', 1),
+(62, 'Ética Profesional', 1),
+(63, 'Legislación Informática', 1),
+(64, 'Derechos Humanos', 1),
+(65, 'Economía Internacional', 1),
+(66, 'Comercio Exterior', 1),
+(67, 'Gestión Empresarial', 1),
+(68, 'Recursos Humanos', 1),
+(69, 'Psicología Organizacional', 1),
+(70, 'Sociología del Trabajo', 1),
+(71, 'Historia del Pensamiento Económico', 1),
+(72, 'Política Fiscal', 1),
+(73, 'Finanzas Públicas', 1),
+(74, 'Teoría Monetaria', 1),
+(75, 'Econometría', 1),
+(76, 'Investigación de Mercados', 1),
+(77, 'Publicidad y Propaganda', 1),
+(78, 'Diseño UX/UI', 0), -- No promocionable
+(79, 'Animación 3D', 0), -- No promocionable
+(80, 'Producción Audiovisual', 0), -- No promocionable
+(81, 'Periodismo Digital', 1),
+(82, 'Narrativa Transmedia', 1),
+(83, 'Cine y Televisión', 1),
+(84, 'Fotografía Profesional', 1),
+(85, 'Música y Sonido', 1),
+(86, 'Arte Contemporáneo', 1),
+(87, 'Historia del Diseño', 1),
+(88, 'Arquitectura Sustentable', 1),
+(89, 'Urbanismo', 1),
+(90, 'Diseño de Interiores', 1),
+(91, 'Ingeniería Civil', 1),
+(92, 'Ingeniería Mecánica', 1),
+(93, 'Ingeniería Eléctrica', 1),
+(94, 'Ingeniería Química', 1),
+(95, 'Ingeniería Biomédica', 1),
+(96, 'Medicina General', 1),
+(97, 'Cirugía', 1),
+(98, 'Farmacología', 1),
+(99, 'Nutrición', 1),
+(100, 'Enfermería', 1);
+
+
+
+
+INSERT INTO `TP_46894109_Ricarte`.`departamentos` (`id_departamentos`, `departamento`) VALUES
+(1, 'Departamento Productivo y Tecnológico'),
+(2, 'Departamento de Ciencias Económicas'),
+(3, 'Departamento de Ingeniería'),
+(4, 'Departamento de Arquitectura'),
+(5, 'Departamento de Derecho'),
+(6, 'Departamento de Psicología'),
+(7, 'Departamento de Medicina'),
+(8, 'Departamento de Ciencias Exactas'),
+(9, 'Departamento de Humanidades'),
+(10, 'Departamento de Educación'),
+(11, 'Departamento de Comunicación'),
+(12, 'Departamento de Ciencias Sociales'),
+(13, 'Departamento de Física'),
+(14, 'Departamento de Química'),
+(15, 'Departamento de Biología'),
+(16, 'Departamento de Matemática'),
+(17, 'Departamento de Historia'),
+(18, 'Departamento de Geografía'),
+(19, 'Departamento de Filosofía'),
+(20, 'Departamento de Arte');
+
+INSERT INTO `TP_46894109_Ricarte`.`carreras` (`id_carrera`, `carrera`, `departamentos_id_departamentos`) VALUES
+-- TECNICATURAS
+(1, 'Gestión de Gobierno Local', 12),
+(2, 'Gestión y Administración Universitaria', 2),
+
+-- LICENCIATURAS
+(3, 'Audiovisión', 11),
+(4, 'Ciencia Política y Gobierno', 12),
+(5, 'Ciencia y Tecnología de los Alimentos', 2),
+(6, 'Diseño Industrial', 11),
+(7, 'Diseño y Comunicación Visual', 11),
+(8, 'Economía Empresarial', 2),
+(9, 'Economía Política', 2),
+(10, 'Educación', 10),
+(11, 'Enfermería', 7),
+(12, 'Gestión Ambiental Urbana', 2),
+(13, 'Justicia y Derechos Humanos', 5),
+(14, 'Música de Cámara y Sinfónica', 20),
+(15, 'Nutrición', 7),
+(16, 'Planificación Logística', 2),
+(17, 'Relaciones Internacionales', 12),
+(18, 'Seguridad Ciudadana', 12),
+(19, 'Sistemas', 1),
+(20, 'Tecnologías Ferroviarias', 3),
+(21, 'Trabajo Social', 12),
+(22, 'Traductorado Público en Idioma Inglés', 9),
+(23, 'Turismo', 9),
+
+-- CICLOS DE LICENCIATURA
+(24, 'Educación Física (Ciclo)', 10),
+(25, 'Gestión Educativa (Ciclo)', 10),
+(26, 'Música de Cámara y Sinfónica (Ciclo)', 20),
+(27, 'Gestión y Administración Universitaria (Ciclo)', 2),
+(28, 'Seguridad Ciudadana (Ciclo)', 12),
+(29, 'Tecnologías Digitales para la Educación', 1),
+(30, 'Trabajo Social (Ciclo)', 12),
+(31, 'Turismo (Ciclo)', 9);
+
+
+
+INSERT INTO `TP_46894109_Ricarte`.`examenes` (`id_examen`, `descripcion_temas`) VALUES
+(1, 'Examen final de Organización de Computadoras'),
+(2, 'Examen parcial de Programación'),
+(3, 'Trabajo práctico individual de Elementos de Matemática'),
+(4, 'Examen final de Algoritmos'),
+(5, 'Examen oral de Inglés 1'),
+(6, 'Examen práctico de Bases de Datos'),
+(7, 'Examen teórico de Redes de Computadoras'),
+(8, 'Examen de Sistemas Operativos'),
+(9, 'Examen de Ingeniería de Software'),
+(10, 'Examen de Seguridad Informática'),
+(11, 'Trabajo práctico grupal de Diseño Gráfico'),
+(12, 'Examen de Historia del Arte'),
+(13, 'Examen de Teoría del Diseño'),
+(14, 'Examen de Economía Política'),
+(15, 'Examen de Macroeconomía'),
+(16, 'Examen de Microeconomía'),
+(17, 'Examen de Contabilidad General'),
+(18, 'Examen de Derecho Empresarial'),
+(19, 'Examen de Psicología Cognitiva'),
+(20, 'Examen de Neurociencia'),
+(21, 'Examen final de Física 1'),
+(22, 'Examen parcial de Química General'),
+(23, 'Trabajo práctico individual de Biología Molecular'),
+(24, 'Examen final de Historia Contemporánea'),
+(25, 'Examen oral de Geografía Humana'),
+(26, 'Examen práctico de Filosofía Moderna'),
+(27, 'Examen teórico de Educación y Sociedad'),
+(28, 'Examen de Comunicación Digital'),
+(29, 'Examen de Marketing Estratégico'),
+(30, 'Examen de Administración Financiera'),
+(31, 'Trabajo práctico grupal de Derecho Constitucional'),
+(32, 'Examen de Psicología del Desarrollo'),
+(33, 'Examen de Análisis Matemático'),
+(34, 'Examen de Álgebra Lineal'),
+(35, 'Examen de Cálculo Diferencial'),
+(36, 'Examen de Estadística Aplicada'),
+(37, 'Examen final de Inteligencia Artificial'),
+(38, 'Examen parcial de Big Data'),
+(39, 'Trabajo práctico individual de Machine Learning'),
+(40, 'Examen final de Robótica'),
+(41, 'Examen oral de Automatización Industrial'),
+(42, 'Examen práctico de Electrónica Digital'),
+(43, 'Examen teórico de Arquitectura de Computadoras'),
+(44, 'Examen de Bases de Datos Avanzadas'),
+(45, 'Examen de Redes Avanzadas'),
+(46, 'Examen de Seguridad en Redes'),
+(47, 'Examen de Criptografía'),
+(48, 'Trabajo práctico grupal de Desarrollo Web'),
+(49, 'Examen de Desarrollo Móvil'),
+(50, 'Examen de Cloud Computing'),
+(51, 'Examen de Blockchain'),
+(52, 'Examen de Gestión de Proyectos'),
+(53, 'Examen de Metodologías Ágiles'),
+(54, 'Examen de Ingeniería del Software'),
+(55, 'Examen de Sistemas Distribuidos'),
+(56, 'Examen de Computación Cuántica'),
+(57, 'Examen de Bioinformática'),
+(58, 'Examen de Nanotecnología'),
+(59, 'Examen de Energías Renovables'),
+(60, 'Examen de Cambio Climático'),
+(61, 'Examen de Desarrollo Sustentable'),
+(62, 'Examen de Ética Profesional'),
+(63, 'Examen de Legislación Informática'),
+(64, 'Examen de Derechos Humanos'),
+(65, 'Examen de Economía Internacional'),
+(66, 'Examen de Comercio Exterior'),
+(67, 'Examen de Gestión Empresarial'),
+(68, 'Examen de Recursos Humanos'),
+(69, 'Examen de Psicología Organizacional'),
+(70, 'Examen de Sociología del Trabajo'),
+(71, 'Examen de Historia del Pensamiento Económico'),
+(72, 'Examen de Política Fiscal'),
+(73, 'Examen de Finanzas Públicas'),
+(74, 'Examen de Teoría Monetaria'),
+(75, 'Examen de Econometría'),
+(76, 'Examen de Investigación de Mercados'),
+(77, 'Examen de Publicidad y Propaganda'),
+(78, 'Examen de Diseño UX/UI'),
+(79, 'Examen de Animación 3D'),
+(80, 'Examen de Producción Audiovisual'),
+(81, 'Examen de Periodismo Digital'),
+(82, 'Examen de Narrativa Transmedia'),
+(83, 'Examen de Cine y Televisión'),
+(84, 'Examen de Fotografía Profesional'),
+(85, 'Examen de Música y Sonido'),
+(86, 'Examen de Arte Contemporáneo'),
+(87, 'Examen de Historia del Diseño'),
+(88, 'Examen de Arquitectura Sustentable'),
+(89, 'Examen de Urbanismo'),
+(90, 'Examen de Diseño de Interiores'),
+(91, 'Examen de Ingeniería Civil'),
+(92, 'Examen de Ingeniería Mecánica'),
+(93, 'Examen de Ingeniería Eléctrica'),
+(94, 'Examen de Ingeniería Química'),
+(95, 'Examen de Ingeniería Biomédica'),
+(96, 'Examen de Medicina General'),
+(97, 'Examen de Cirugía'),
+(98, 'Examen de Farmacología'),
+(99, 'Examen de Nutrición'),
+(100, 'Examen de Enfermería');
+
+
+INSERT INTO `TP_46894109_Ricarte`.`Estudiantes` (`matricula`, `Estudiante_dni`) VALUES
+(1, 42345678),
+(2, 36123456),
+(3, 27987654),
+(4, 45001234),
+(5, 30876543),
+(6, 24123456),
+(7, 38901234),
+(8, 46543210),
+(9, 21234567),
+(10, 43876543),
+(11, 29876543),
+(12, 32765432),
+(13, 44210987),
+(14, 25432109),
+(15, 48876543),
+(16, 30876512),
+(17, 34567890),
+(18, 45321098),
+(19, 38904567),
+(20, 23210987),
+(21, 46789012),
+(22, 32543210),
+(23, 42109876),
+(24, 28765432),
+(25, 39876543),
+(26, 34876543),
+(27, 27123456),
+(28, 46098765),
+(29, 27436587),
+(30, 32098765),
+(31, 25897654),
+(32, 40123456),
+(33, 31456789),
+(34, 37543210),
+(35, 46123456),
+(36, 32654321),
+(37, 38012345),
+(38, 42987654),
+(39, 22098765),
+(40, 46765432),
+(41, 34567891),
+(42, 30543210),
+(43, 43210987),
+(44, 25439876),
+(45, 29876521),
+(46, 29123456),
+(47, 33123457),
+(48, 41567891),
+(49, 37234568),
+(50, 34567893),
+(51, 26543220),
+(52, 42123460),
+(53, 39876550),
+(54, 28876544),
+(55, 45321100),
+(56, 39987633),
+(57, 36789013),
+(58, 27987644),
+(59, 43098762),
+(60, 41234569),
+(61, 36098765),
+(62, 34543218),
+(63, 40123470),
+(64, 47896544),
+(65, 42345673),
+(66, 27098762),
+(67, 35987655),
+(68, 48901235),
+(69, 34678902),
+(70, 46234568),
+(71, 27890124),
+(72, 31456790),
+(73, 40567891),
+(74, 32456790),
+(75, 37458902),
+(76, 43678913),
+(77, 39874568),
+(78, 26547891),
+(79, 47987652),
+(80, 34098766),
+(81, 42109877),
+(82, 31567891),
+(83, 39871235),
+(84, 43765499),
+(85, 29017655),
+(86, 46098713),
+(87, 32098766),
+(88, 27896544),
+(89, 38543211),
+(90, 43210988);
+
+
+
+
+
+INSERT INTO `TP_46894109_Ricarte`.`profesores` (`id_profesor`, `Persona_dni`) VALUES
+(1, 23015432),
+(2, 38124567),
+(3, 25003698),
+(4, 40125678),
+(5, 29004567),
+(6, 35012789),
+(7, 47025689),
+(8, 32014578),
+(9, 27004512),
+(10, 36002547),
+(11, 21004568),
+(12, 49005678),
+(13, 31005689),
+(14, 22003456),
+(15, 44002568),
+(16, 26003457),
+(17, 20012345),
+(18, 50000500),
+(19, 39004560),
+(20, 42006789),
+(21, 28004567),
+(22, 43006780),
+(23, 37003456),
+(24, 45002345),
+(25, 24005678),
+(26, 46001234),
+(27, 33006789),
+(28, 38006789),
+(29, 34004567),
+(30, 20056789),
+(31, 41002345),
+(32, 29003456),
+(33, 37005678),
+(34, 39006789),
+(35, 21005678),
+(36, 31006789),
+(37, 28006780),
+(38, 44005678),
+(39, 35003456),
+(40, 45006789),
+(41, 47003456),
+(42, 50003456),
+(43, 32006789),
+(44, 38003456),
+(45, 30004567),
+(46, 27005678),
+(47, 31003456),
+(48, 25006789),
+(49, 34006780);
+
+
+
+INSERT INTO `TP_46894109_Ricarte`.`legajos` (`legajo`, `carreras_id_carrera`, `regularidad`, `Estudiante_matricula`, `plan_academico`) VALUES
+('legajo0001', 1, 'Regular', 1, 2021),
+('legajo0002', 2, 'Libre', 2, 2020),
+('legajo0003', 3, 'Regular', 3, 2022),
+('legajo0004', 4, 'Promocionado', 4, 2019),
+('legajo0005', 5, 'Regular', 5, 2023),
+('legajo0006', 6, 'Libre', 6, 2020),
+('legajo0007', 7, 'Regular', 7, 2021),
+('legajo0008', 8, 'Promocionado', 8, 2022),
+('legajo0009', 9, 'Regular', 9, 2021),
+('legajo0010', 10, 'Libre', 10, 2023),
+('legajo0011', 11, 'Regular', 11, 2020),
+('legajo0012', 12, 'Promocionado', 12, 2021),
+('legajo0013', 13, 'Regular', 13, 2022),
+('legajo0014', 14, 'Libre', 14, 2019),
+('legajo0015', 15, 'Regular', 15, 2023),
+('legajo0016', 16, 'Promocionado', 16, 2021),
+('legajo0017', 17, 'Regular', 17, 2022),
+('legajo0018', 18, 'Libre', 18, 2020),
+('legajo0019', 19, 'Regular', 19, 2019),
+('legajo0020', 20, 'Promocionado', 20, 2023),
+('legajo0021', 21, 'Regular', 21, 2022),
+('legajo0022', 22, 'Libre', 22, 2021),
+('legajo0023', 23, 'Regular', 23, 2020),
+('legajo0024', 24, 'Promocionado', 24, 2019),
+('legajo0025', 25, 'Regular', 25, 2023),
+('legajo0026', 26, 'Libre', 26, 2022),
+('legajo0027', 27, 'Regular', 27, 2021),
+('legajo0028', 28, 'Promocionado', 28, 2020),
+('legajo0029', 29, 'Regular', 29, 2019),
+('legajo0030', 30, 'Libre', 30, 2023),
+('legajo0031', 31, 'Regular', 31, 2022),
+('legajo0032', 1, 'Promocionado', 32, 2021),
+('legajo0033', 2, 'Regular', 33, 2020),
+('legajo0034', 3, 'Libre', 34, 2019),
+('legajo0035', 4, 'Regular', 35, 2023),
+('legajo0036', 5, 'Promocionado', 36, 2022),
+('legajo0037', 6, 'Regular', 37, 2021),
+('legajo0038', 7, 'Libre', 38, 2020),
+('legajo0039', 8, 'Regular', 39, 2019),
+('legajo0040', 9, 'Promocionado', 40, 2023),
+('legajo0041', 10, 'Regular', 41, 2022),
+('legajo0042', 11, 'Libre', 42, 2021),
+('legajo0043', 12, 'Regular', 43, 2020),
+('legajo0044', 13, 'Promocionado', 44, 2019),
+('legajo0045', 14, 'Regular', 45, 2023),
+('legajo0046', 15, 'Libre', 46, 2022),
+('legajo0047', 16, 'Regular', 47, 2021),
+('legajo0048', 17, 'Promocionado', 48, 2020),
+('legajo0049', 18, 'Regular', 49, 2019),
+('legajo0050', 19, 'Libre', 50, 2023),
+('legajo0051', 20, 'Regular', 51, 2022),
+('legajo0052', 21, 'Promocionado', 52, 2021),
+('legajo0053', 22, 'Regular', 53, 2020),
+('legajo0054', 23, 'Libre', 54, 2019),
+('legajo0055', 24, 'Regular', 55, 2023),
+('legajo0056', 25, 'Promocionado', 56, 2022),
+('legajo0057', 26, 'Regular', 57, 2021),
+('legajo0058', 27, 'Libre', 58, 2020),
+('legajo0059', 28, 'Regular', 59, 2019),
+('legajo0060', 29, 'Promocionado', 60, 2023),
+('legajo0061', 30, 'Regular', 61, 2022),
+('legajo0062', 31, 'Libre', 62, 2021),
+('legajo0063', 1, 'Regular', 63, 2020),
+('legajo0064', 2, 'Promocionado', 64, 2019),
+('legajo0065', 3, 'Regular', 65, 2023),
+('legajo0066', 4, 'Libre', 66, 2022),
+('legajo0067', 5, 'Regular', 67, 2021),
+('legajo0068', 6, 'Promocionado', 68, 2020),
+('legajo0069', 7, 'Regular', 69, 2019),
+('legajo0070', 8, 'Libre', 70, 2023),
+('legajo0071', 9, 'Regular', 71, 2022),
+('legajo0072', 10, 'Promocionado', 72, 2021),
+('legajo0073', 11, 'Regular', 73, 2020),
+('legajo0074', 12, 'Libre', 74, 2019),
+('legajo0075', 13, 'Regular', 75, 2023),
+('legajo0076', 14, 'Promocionado', 76, 2022),
+('legajo0077', 15, 'Regular', 77, 2021),
+('legajo0078', 16, 'Libre', 78, 2020),
+('legajo0079', 17, 'Regular', 79, 2019),
+('legajo0080', 18, 'Promocionado', 80, 2023),
+('legajo0081', 19, 'Regular', 81, 2022),
+('legajo0082', 20, 'Libre', 82, 2021),
+('legajo0083', 21, 'Regular', 83, 2020),
+('legajo0084', 22, 'Promocionado', 84, 2019),
+('legajo0085', 23, 'Regular', 85, 2023),
+('legajo0086', 24, 'Libre', 86, 2022),
+('legajo0087', 25, 'Regular', 87, 2021),
+('legajo0088', 26, 'Promocionado', 88, 2020),
+('legajo0089', 27, 'Regular', 89, 2019),
+('legajo0090', 28, 'Libre', 90, 2023),
+('legajo0091', 29, 'Regular', 1, 2022),
+('legajo0092', 30, 'Promocionado', 2, 2021),
+('legajo0093', 31, 'Regular', 3, 2020),
+('legajo0094', 1, 'Libre', 4, 2019),
+('legajo0095', 2, 'Regular', 5, 2023),
+('legajo0096', 3, 'Promocionado', 6, 2022),
+('legajo0097', 4, 'Regular', 7, 2021),
+('legajo0098', 5, 'Libre', 8, 2020),
+('legajo0099', 6, 'Regular', 9, 2019),
+('legajo0100', 7, 'Promocionado', 10, 2023),
+('legajo0101', 8, 'Regular', 11, 2022),
+('legajo0102', 9, 'Libre', 12, 2021),
+('legajo0103', 10, 'Regular', 13, 2020),
+('legajo0104', 11, 'Promocionado', 14, 2019),
+('legajo0105', 12, 'Regular', 15, 2023),
+('legajo0106', 13, 'Libre', 16, 2022),
+('legajo0107', 14, 'Regular', 17, 2021),
+('legajo0108', 15, 'Promocionado', 18, 2020),
+('legajo0109', 16, 'Regular', 19, 2019),
+('legajo0110', 17, 'Libre', 20, 2023),
+('legajo0111', 18, 'Regular', 21, 2022),
+('legajo0112', 19, 'Promocionado', 22, 2021),
+('legajo0113', 20, 'Regular', 23, 2020),
+('legajo0114', 21, 'Libre', 24, 2019),
+('legajo0115', 22, 'Regular', 25, 2023),
+('legajo0116', 23, 'Promocionado', 26, 2022),
+('legajo0117', 24, 'Regular', 27, 2021),
+('legajo0118', 25, 'Libre', 28, 2020),
+('legajo0119', 26, 'Regular', 29, 2019),
+('legajo0120', 27, 'Promocionado', 30, 2023),
+('legajo0121', 28, 'Regular', 31, 2022),
+('legajo0122', 29, 'Libre', 32, 2021),
+('legajo0123', 30, 'Regular', 33, 2020),
+('legajo0124', 31, 'Promocionado', 34, 2019),
+('legajo0125', 1, 'Regular', 35, 2023),
+('legajo0126', 2, 'Libre', 36, 2022),
+('legajo0127', 3, 'Regular', 37, 2021),
+('legajo0128', 4, 'Promocionado', 38, 2020),
+('legajo0129', 5, 'Regular', 39, 2019),
+('legajo0130', 6, 'Libre', 40, 2023),
+('legajo0131', 7, 'Regular', 41, 2022),
+('legajo0132', 8, 'Promocionado', 42, 2021),
+('legajo0133', 9, 'Regular', 43, 2020),
+('legajo0134', 10, 'Libre', 44, 2019),
+('legajo0135', 11, 'Regular', 45, 2023),
+('legajo0136', 12, 'Promocionado', 46, 2022),
+('legajo0137', 13, 'Regular', 47, 2021),
+('legajo0138', 14, 'Libre', 48, 2020),
+('legajo0139', 15, 'Regular', 49, 2019),
+('legajo0140', 16, 'Promocionado', 50, 2023),
+('legajo0141', 17, 'Regular', 51, 2022),
+('legajo0142', 18, 'Libre', 52, 2021),
+('legajo0143', 19, 'Regular', 53, 2020),
+('legajo0144', 20, 'Promocionado', 54, 2019),
+('legajo0145', 21, 'Regular', 55, 2023),
+('legajo0146', 22, 'Libre', 56, 2022),
+('legajo0147', 23, 'Regular', 57, 2021),
+('legajo0148', 24, 'Promocionado', 58, 2020),
+('legajo0149', 25, 'Regular', 59, 2019),
+('legajo0150', 26, 'Libre', 60, 2023);
+
+INSERT INTO `TP_46894109_Ricarte`.`cursada_materias` (`id_cursada`, `fecha_inicio`, `fecha_fin_cursada`, `nota`, `aprobado`, `legajo_estudiante`, `materias_idmaterias`) VALUES
+(1, '2020-05-12', '2020-11-28', 8, 1, 'legajo0004', 14),
+(2, '2018-08-21', '2019-03-14', 6, 1, 'legajo0027', 7),
+(3, '2022-01-04', '2022-06-30', 3, 0, 'legajo0052', 25),
+(4, '2019-11-15', '2020-04-10', 5, 1, 'legajo0081', 33),
+(5, '2023-07-08', '2024-01-20', 9, 1, 'legajo0018', 12),
+(6, '2021-02-17', '2021-08-05', 7, 1, 'legajo0039', 40),
+(7, '2018-05-30', '2018-11-18', 4, 1, 'legajo0075', 19),
+(8, '2024-04-25', '2024-09-12', 10, 1, 'legajo0002', 50),
+(9, '2019-09-19', '2020-03-03', 2, 0, 'legajo0090', 11),
+(10, '2022-06-14', '2022-12-03', 5, 1, 'legajo0064', 36),
+(11, '2018-11-07', '2019-05-22', 6, 1, 'legajo0020', 43),
+(12, '2023-03-18', '2023-09-01', 9, 1, 'legajo0046', 27),
+(13, '2020-10-10', '2021-04-05', 3, 0, 'legajo0079', 9),
+(14, '2021-09-22', '2022-02-14', 7, 1, 'legajo0035', 23),
+(15, '2018-04-11', '2018-10-30', 4, 1, 'legajo0058', 31),
+(16, '2019-07-05', '2020-01-12', 8, 1, 'legajo0084', 44),
+(17, '2021-12-29', '2022-07-10', 2, 0, 'legajo0007', 16),
+(18, '2024-02-03', '2024-06-29', 10, 1, 'legajo0015', 5),
+(19, '2020-08-27', '2021-02-11', 6, 1, 'legajo0092', 41),
+(20, '2019-10-21', '2020-04-06', 5, 1, 'legajo0040', 38);
+
+
+INSERT INTO `TP_46894109_Ricarte`.`cursada_materias` (`id_cursada`, `fecha_inicio`, `fecha_fin_cursada`, `nota`, `aprobado`, `legajo_estudiante`, `materias_idmaterias`) VALUES
+(21, '2019-03-10', '2019-09-25', 7, 1, 'legajo0012', 22),
+(22, '2020-06-14', '2020-12-09', 5, 1, 'legajo0077', 36),
+(23, '2021-02-27', '2021-08-19', 8, 1, 'legajo0048', 15),
+(24, '2022-09-08', '2023-03-21', 3, 0, 'legajo0063', 44),
+(25, '2018-05-23', '2018-11-10', 6, 1, 'legajo0099', 9),
+(26, '2023-11-14', '2024-05-07', 4, 1, 'legajo0029', 50),
+(27, '2019-07-29', '2020-02-11', 10, 1, 'legajo0061', 27),
+(28, '2021-10-05', '2022-04-22', 2, 0, 'legajo0034', 12),
+(29, '2024-03-13', '2024-09-30', 6, 1, 'legajo0056', 41),
+(30, '2020-09-18', '2021-04-03', 9, 1, 'legajo0082', 38),
+(31, '2018-02-07', '2018-08-25', 7, 1, 'legajo0095', 19),
+(32, '2022-07-11', '2023-01-15', 5, 1, 'legajo0017', 31),
+(33, '2023-05-20', '2023-11-07', 4, 1, 'legajo0041', 25),
+(34, '2019-12-28', '2020-07-02', 3, 0, 'legajo0087', 23),
+(35, '2021-08-15', '2022-02-12', 8, 1, 'legajo0032', 7),
+(36, '2024-01-22', '2024-07-08', 10, 1, 'legajo0054', 46),
+(37, '2018-11-30', '2019-05-18', 6, 1, 'legajo0070', 39),
+(38, '2020-04-29', '2020-11-13', 7, 1, 'legajo0066', 11),
+(39, '2023-09-05', '2024-03-19', 2, 0, 'legajo0024', 33),
+(40, '2019-06-11', '2019-12-02', 5, 1, 'legajo0091', 14);
+
+INSERT INTO `TP_46894109_Ricarte`.`cursada_materias` (`id_cursada`, `fecha_inicio`, `fecha_fin_cursada`, `nota`, `aprobado`, `legajo_estudiante`, `materias_idmaterias`) VALUES
+(41, '2018-03-11', '2018-09-25', 6, 1, 'legajo0028', 15),
+(42, '2020-07-30', '2021-02-10', 7, 1, 'legajo0085', 43),
+(43, '2021-12-14', '2022-06-29', 4, 1, 'legajo0057', 8),
+(44, '2019-09-02', '2020-03-20', 5, 1, 'legajo0072', 22),
+(45, '2023-05-27', '2023-11-12', 9, 1, 'legajo0031', 31),
+(46, '2018-06-14', '2018-11-30', 2, 0, 'legajo0094', 14),
+(47, '2022-08-03', '2023-02-18', 8, 1, 'legajo0010', 50),
+(48, '2019-04-25', '2019-10-09', 3, 0, 'legajo0069', 19),
+(49, '2024-02-14', '2024-07-30', 6, 1, 'legajo0044', 12),
+(50, '2020-09-28', '2021-03-15', 7, 1, 'legajo0055', 38),
+(51, '2018-12-11', '2019-06-22', 5, 1, 'legajo0089', 25),
+(52, '2023-04-19', '2023-10-04', 10, 1, 'legajo0026', 47),
+(53, '2019-06-29', '2020-01-13', 8, 1, 'legajo0060', 36),
+(54, '2021-11-05', '2022-05-29', 4, 1, 'legajo0073', 9),
+(55, '2018-08-17', '2019-03-08', 6, 1, 'legajo0098', 23),
+(56, '2020-07-11', '2021-02-27', 9, 1, 'legajo0042', 7),
+(57, '2019-10-31', '2020-04-17', 2, 0, 'legajo0088', 41),
+(58, '2024-05-20', '2024-11-01', 7, 1, 'legajo0050', 3),
+(59, '2021-06-06', '2022-01-23', 5, 1, 'legajo0014', 31),
+(60, '2019-03-15', '2019-09-30', 10, 1, 'legajo0076', 14),
+(61, '2023-09-27', '2024-04-12', 3, 0, 'legajo0029', 50),
+(62, '2020-05-05', '2020-11-19', 6, 1, 'legajo0068', 43),
+(63, '2018-07-30', '2019-02-15', 4, 1, 'legajo0097', 15),
+(64, '2022-04-18', '2022-10-01', 8, 1, 'legajo0037', 8),
+(65, '2019-12-09', '2020-06-25', 7, 1, 'legajo0052', 31),
+(66, '2024-01-02', '2024-07-16', 5, 1, 'legajo0011', 19),
+(67, '2021-09-09', '2022-03-24', 2, 0, 'legajo0096', 22),
+(68, '2018-05-28', '2018-11-14', 10, 1, 'legajo0043', 47),
+(69, '2023-06-22', '2023-12-09', 6, 1, 'legajo0074', 12),
+(70, '2020-09-20', '2021-04-05', 9, 1, 'legajo0059', 36);
+
+
+INSERT INTO `TP_46894109_Ricarte`.`cursada_materias` (`id_cursada`, `fecha_inicio`, `fecha_fin_cursada`, `nota`, `aprobado`, `legajo_estudiante`, `materias_idmaterias`) VALUES
+(71, '2019-10-14', '2020-04-05', 6, 1, 'legajo0022', 13),
+(72, '2021-07-25', '2022-02-09', 7, 1, 'legajo0099', 42),
+(73, '2018-04-09', '2018-10-21', 5, 1, 'legajo0055', 29),
+(74, '2023-02-12', '2023-08-01', 10, 1, 'legajo0016', 18),
+(75, '2019-12-30', '2020-07-19', 2, 0, 'legajo0071', 34),
+(76, '2024-05-07', '2024-10-23', 8, 1, 'legajo0039', 50),
+(77, '2020-06-18', '2020-12-05', 3, 0, 'legajo0062', 21),
+(78, '2018-07-22', '2019-01-10', 4, 1, 'legajo0047', 11),
+(79, '2021-03-15', '2021-09-27', 9, 1, 'legajo0085', 44),
+(80, '2023-09-08', '2024-03-14', 5, 1, 'legajo0020', 26),
+(81, '2019-05-20', '2019-11-02', 7, 1, 'legajo0077', 35),
+(82, '2022-08-05', '2023-01-30', 6, 1, 'legajo0094', 8),
+(83, '2018-11-17', '2019-05-06', 10, 1, 'legajo0059', 38),
+(84, '2020-04-29', '2020-10-12', 4, 1, 'legajo0030', 31),
+(85, '2021-09-10', '2022-02-22', 3, 0, 'legajo0013', 16),
+(86, '2024-02-19', '2024-07-05', 9, 1, 'legajo0082', 7),
+(87, '2018-06-09', '2018-12-25', 5, 1, 'legajo0066', 47),
+(88, '2022-05-28', '2022-11-17', 7, 1, 'legajo0025', 23),
+(89, '2023-12-01', '2024-06-08', 8, 1, 'legajo0045', 12),
+(90, '2019-09-07', '2020-03-19', 6, 1, 'legajo0097', 41),
+(91, '2021-02-14', '2021-08-11', 10, 1, 'legajo0019', 9),
+(92, '2024-04-22', '2024-10-30', 3, 0, 'legajo0079', 27),
+(93, '2018-09-18', '2019-04-02', 4, 1, 'legajo0051', 50),
+(94, '2020-07-02', '2020-12-27', 6, 1, 'legajo0036', 14),
+(95, '2019-11-11', '2020-05-05', 5, 1, 'legajo0089', 22),
+(96, '2021-06-03', '2021-12-10', 9, 1, 'legajo0028', 35),
+(97, '2018-03-29', '2018-09-15', 7, 1, 'legajo0061', 43),
+(98, '2023-08-30', '2024-02-20', 2, 0, 'legajo0095', 19),
+(99, '2022-11-24', '2023-06-11', 8, 1, 'legajo0043', 31),
+(100, '2019-04-04', '2019-10-19', 10, 1, 'legajo0074', 26);
+
+INSERT INTO `TP_46894109_Ricarte`.`cursada_materias` (`id_cursada`, `fecha_inicio`, `fecha_fin_cursada`, `nota`, `aprobado`, `legajo_estudiante`, `materias_idmaterias`) VALUES
+(101, '2020-03-10', '2020-09-25', 7, 1, 'legajo0022', 5),
+(102, '2021-06-22', '2022-01-09', 6, 1, 'legajo0099', 48),
+(103, '2018-05-29', '2018-11-15', 8, 1, 'legajo0055', 20),
+(104, '2023-04-12', '2023-10-01', 4, 1, 'legajo0016', 30),
+(105, '2019-11-14', '2020-05-08', 5, 1, 'legajo0071', 14),
+(106, '2024-01-07', '2024-06-23', 10, 1, 'legajo0039', 42),
+(107, '2020-07-11', '2020-12-29', 3, 0, 'legajo0062', 27),
+(108, '2018-09-22', '2019-04-18', 6, 1, 'legajo0047', 36),
+(109, '2021-08-10', '2022-02-14', 9, 1, 'legajo0085', 45),
+(110, '2023-07-25', '2024-01-20', 2, 0, 'legajo0020', 50),
+(111, '2019-12-05', '2020-06-15', 7, 1, 'legajo0077', 33),
+(112, '2022-03-28', '2022-09-12', 5, 1, 'legajo0094', 26),
+(113, '2018-04-17', '2018-10-02', 6, 1, 'legajo0059', 12),
+(114, '2020-10-29', '2021-05-13', 8, 1, 'legajo0030', 41),
+(115, '2021-05-10', '2021-11-23', 3, 0, 'legajo0013', 7),
+(116, '2024-06-19', '2024-12-05', 9, 1, 'legajo0082', 29),
+(117, '2018-07-14', '2019-01-30', 4, 1, 'legajo0066', 47),
+(118, '2022-09-07', '2023-03-21', 10, 1, 'legajo0025', 21),
+(119, '2023-11-01', '2024-05-14', 5, 1, 'legajo0045', 34),
+(120, '2019-08-07', '2020-02-29', 6, 1, 'legajo0097', 19),
+(121, '2021-01-22', '2021-08-09', 10, 1, 'legajo0019', 43),
+(122, '2024-02-04', '2024-07-30', 3, 0, 'legajo0079', 9),
+(123, '2018-10-13', '2019-04-05', 4, 1, 'legajo0051', 17),
+(124, '2020-04-02', '2020-10-27', 7, 1, 'legajo0036', 50),
+(125, '2019-06-11', '2020-01-03', 5, 1, 'legajo0089', 25),
+(126, '2021-07-03', '2022-02-12', 9, 1, 'legajo0028', 31),
+(127, '2018-05-29', '2018-11-09', 6, 1, 'legajo0061', 23),
+(128, '2023-10-30', '2024-05-15', 2, 0, 'legajo0095', 36),
+(129, '2022-12-24', '2023-07-11', 8, 1, 'legajo0043', 14),
+(130, '2019-07-14', '2020-01-29', 10, 1, 'legajo0074', 22);
+
+
+
+INSERT INTO `TP_46894109_Ricarte`.`profesor_encargado` (`materias_idmaterias`, `profesor_id_profesor`, `id_prof_materia`) VALUES
+(1, 5, 101),
+(2, 10, 102),
+(3, 15, 103),
+(4, 20, 104),
+(5, 25, 105),
+(6, 30, 106),
+(7, 35, 107),
+(8, 40, 108),
+(9, 45, 109),
+(10, 7, 110),
+(11, 12, 111),
+(12, 17, 112),
+(13, 22, 113),
+(14, 27, 114),
+(15, 32, 115),
+(16, 37, 116),
+(17, 42, 117),
+(18, 3, 118),
+(19, 8, 119),
+(20, 13, 120);
+
+
+INSERT INTO `TP_46894109_Ricarte`.`profesor_encargado` (`materias_idmaterias`, `profesor_id_profesor`, `id_prof_materia`) VALUES
+(21, 18, 121),
+(22, 23, 122),
+(23, 28, 123),
+(24, 33, 124),
+(25, 38, 125),
+(26, 43, 126),
+(27, 2, 127),
+(28, 7, 128),
+(29, 12, 129),
+(30, 17, 130),
+(31, 22, 131),
+(32, 27, 132),
+(33, 32, 133),
+(34, 37, 134),
+(35, 42, 135),
+(36, 47, 136),
+(37, 3, 137),
+(38, 8, 138),
+(39, 13, 139),
+(40, 18, 140),
+(41, 23, 141),
+(42, 28, 142),
+(43, 33, 143),
+(44, 38, 144),
+(45, 43, 145),
+(46, 4, 146),
+(47, 9, 147),
+(48, 14, 148),
+(49, 19, 149),
+(50, 24, 150);
+
+INSERT INTO `TP_46894109_Ricarte`.`profesor_encargado` (`materias_idmaterias`, `profesor_id_profesor`, `id_prof_materia`) VALUES
+(51, 5, 151),
+(52, 10, 152),
+(53, 15, 153),
+(54, 20, 154),
+(55, 25, 155),
+(56, 30, 156),
+(57, 35, 157),
+(58, 40, 158),
+(59, 45, 159),
+(60, 7, 160),
+(61, 12, 161),
+(62, 17, 162),
+(63, 22, 163),
+(64, 27, 164),
+(65, 32, 165),
+(66, 37, 166),
+(67, 42, 167),
+(68, 3, 168),
+(69, 8, 169),
+(70, 13, 170),
+(71, 18, 171),
+(72, 23, 172),
+(73, 28, 173),
+(74, 33, 174),
+(75, 38, 175),
+(76, 43, 176),
+(77, 2, 177),
+(78, 7, 178),
+(79, 12, 179),
+(80, 17, 180),
+(81, 22, 181),
+(82, 27, 182),
+(83, 32, 183),
+(84, 37, 184),
+(85, 42, 185),
+(86, 47, 186),
+(87, 3, 187),
+(88, 8, 188),
+(89, 13, 189),
+(90, 18, 190),
+(91, 23, 191),
+(92, 28, 192),
+(93, 33, 193),
+(94, 38, 194),
+(95, 43, 195),
+(96, 4, 196),
+(97, 9, 197),
+(98, 14, 198),
+(99, 19, 199),
+(100, 24, 200);
+
+SELECT id_profesor FROM `TP_46894109_Ricarte`.`profesores`;
+
+
+INSERT INTO `TP_46894109_Ricarte`.`profesor_encargado` (`materias_idmaterias`, `profesor_id_profesor`, `id_prof_materia`) VALUES
+(1, 9, 201),
+(2, 14, 202),
+(3, 19, 203),
+(4, 24, 204),
+(5, 29, 205),
+(6, 34, 206),
+(7, 39, 207),
+(8, 44, 208),
+(9, 49, 209),
+(10, 3, 210),
+(11, 8, 211),
+(12, 13, 212),
+(13, 18, 213),
+(14, 23, 214),
+(15, 28, 215),
+(16, 33, 216),
+(17, 38, 217),
+(18, 43, 218),
+(19, 48, 219),
+(20, 2, 220),
+(21, 7, 221),
+(22, 12, 222),
+(23, 17, 223),
+(24, 22, 224),
+(25, 27, 225),
+(26, 32, 226),
+(27, 37, 227),
+(28, 42, 228),
+(29, 47, 229),
+(30, 4, 230),
+(31, 9, 231),
+(32, 14, 232),
+(33, 19, 233),
+(34, 24, 234),
+(35, 29, 235),
+(36, 34, 236),
+(37, 39, 237),
+(38, 44, 238),
+(39, 49, 239),
+(40, 5, 240),
+(41, 10, 241),
+(42, 15, 242),
+(43, 20, 243),
+(44, 25, 244),
+(45, 30, 245),
+(46, 35, 246),
+(47, 40, 247),
+(48, 45, 248),
+(50, 6, 250);
+
+
+INSERT INTO `TP_46894109_Ricarte`.`examenes_materias` (`examenes_id_examen`, `materias_idmaterias`, `id_examen_materia`) VALUES
+(1, 1, 101),
+(2, 2, 102),
+(3, 3, 103),
+(4, 4, 104),
+(5, 5, 105),
+(6, 6, 106),
+(7, 7, 107),
+(8, 8, 108),
+(9, 9, 109),
+(10, 10, 110),
+(11, 11, 111),
+(12, 12, 112),
+(13, 13, 113),
+(14, 14, 114),
+(15, 15, 115),
+(16, 16, 116),
+(17, 17, 117),
+(18, 18, 118),
+(19, 19, 119),
+(20, 20, 120);
+
+INSERT INTO `TP_46894109_Ricarte`.`examenes_materias` (`examenes_id_examen`, `materias_idmaterias`, `id_examen_materia`) VALUES
+(21, 21, 121),
+(22, 22, 122),
+(23, 23, 123),
+(24, 24, 124),
+(25, 25, 125),
+(26, 26, 126),
+(27, 27, 127),
+(28, 28, 128),
+(29, 29, 129),
+(30, 30, 130),
+(31, 31, 131),
+(32, 32, 132),
+(33, 33, 133),
+(34, 34, 134),
+(35, 35, 135),
+(36, 36, 136),
+(37, 37, 137),
+(38, 38, 138),
+(39, 39, 139),
+(40, 40, 140),
+(41, 41, 141),
+(42, 42, 142),
+(43, 43, 143),
+(44, 44, 144),
+(45, 45, 145),
+(46, 46, 146),
+(47, 47, 147),
+(48, 48, 148),
+(49, 49, 149),
+(50, 50, 150),
+(51, 51, 151),
+(52, 52, 152),
+(53, 53, 153),
+(54, 54, 154),
+(55, 55, 155),
+(56, 56, 156),
+(57, 57, 157),
+(58, 58, 158),
+(59, 59, 159),
+(60, 60, 160),
+(61, 61, 161),
+(62, 62, 162),
+(63, 63, 163),
+(64, 64, 164),
+(65, 65, 165),
+(66, 66, 166),
+(67, 67, 167),
+(68, 68, 168),
+(69, 69, 169),
+(70, 70, 170);
+
+INSERT INTO `TP_46894109_Ricarte`.`examenes_materias` (`examenes_id_examen`, `materias_idmaterias`, `id_examen_materia`) VALUES
+(71, 71, 171),
+(72, 72, 172),
+(73, 73, 173),
+(74, 74, 174),
+(75, 75, 175),
+(76, 76, 176),
+(77, 77, 177),
+(78, 78, 178),
+(79, 79, 179),
+(80, 80, 180),
+(81, 81, 181),
+(82, 82, 182),
+(83, 83, 183),
+(84, 84, 184),
+(85, 85, 185),
+(86, 86, 186),
+(87, 87, 187),
+(88, 88, 188),
+(89, 89, 189),
+(90, 90, 190),
+(91, 91, 191),
+(92, 92, 192),
+(93, 93, 193),
+(94, 94, 194),
+(95, 95, 195),
+(96, 96, 196),
+(97, 97, 197),
+(98, 98, 198),
+(99, 99, 199),
+(100, 100, 200),
+(1, 21, 201),
+(2, 22, 202),
+(3, 23, 203),
+(4, 24, 204),
+(5, 25, 205),
+(6, 26, 206),
+(7, 27, 207),
+(8, 28, 208),
+(9, 29, 209),
+(10, 30, 210),
+(11, 31, 211),
+(12, 32, 212),
+(13, 33, 213),
+(14, 34, 214),
+(15, 35, 215),
+(16, 36, 216),
+(17, 37, 217),
+(18, 38, 218),
+(19, 39, 219),
+(20, 40, 220);
+
+INSERT INTO `TP_46894109_Ricarte`.`materias_has_carreras` 
+  (`materias_idmaterias`, `carreras_id_carrera`) 
+VALUES
+  (1, 19),
+  (2, 19),
+  (4, 19),
+  (6, 19),
+  (7, 19),
+  (8, 19),
+  (9, 19),
+  (10, 19),
+  (37, 19),
+  (38, 19),
+  (39, 19),
+  (43, 19),
+  (44, 19),
+  (45, 19),
+  (46, 19),
+  (47, 19),
+  (48, 19),
+  (49, 19),
+  (50, 19),
+  (54, 19),
+  (55, 19);
+  
+  
+  INSERT INTO `TP_46894109_Ricarte`.`materias_has_carreras` (`materias_idmaterias`, `carreras_id_carrera`) VALUES
+(1, 1),
+(2, 2),
+(4, 3),
+(6, 4),
+(7, 5),
+(8, 6),
+(9, 7),
+(10, 8),
+(11, 9),
+(12, 10),
+(13, 11),
+(14, 12),
+(15, 13),
+(16, 14),
+(17, 15),
+(18, 16),
+(19, 17),
+(20, 18),
+(21, 20),
+(22, 21),
+(23, 22),
+(24, 23),
+(25, 24),
+(26, 25),
+(27, 26),
+(28, 27),
+(29, 28),
+(30, 29),
+(31, 30),
+(32, 31),
+(33, 1),
+(34, 2),
+(35, 3),
+(36, 4),
+(37, 5),
+(38, 6),
+(39, 7),
+(40, 8),
+(41, 9),
+(42, 10),
+(43, 11),
+(44, 12),
+(45, 13),
+(46, 14),
+(47, 15),
+(48, 16),
+(49, 17),
+(50, 18),
+(51, 20),
+(52, 21);
+
+ --     drop database tp_46894109_ricarte;
+
+
+
+
+-- 1- Busca todas las carreras que esten en el departamento productivo y tecnologico.
+SELECT c.id_carrera, c.carrera, d.departamento 
+FROM carreras c
+JOIN departamentos d ON c.departamentos_id_departamentos = d.id_departamentos
+WHERE d.departamento like "%Productivo%"
+AND  d.departamento like "%Tecnol%gico%";
+
+-- Consultar todos los profesores que enseñan una materia específica
+-- Ejemplo: "Listar todos los profesores que dictan la materia 'Bases de Datos'."
+
+-- SELECT p.Nombre as Nombre_Profesor, p.Apellido, prof.id_profesor,m.materia
+-- FROM Profesores prof
+-- JOIN personas p ON prof.Persona_dni = p.dni;
+-- JOIN materias m ON 
+
+
+-- 3- contar todas las materias de la carrera sistemas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
